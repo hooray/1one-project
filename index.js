@@ -20,7 +20,7 @@ const symbols = require('log-symbols');
 const shell = require('shelljs');
 // 模版git地址
 const gitRepo = {
-    jQuery: 'hooray/gulp-automation',
+    jQuery: 'hooray/gulp-automation-template',
     Vue: 'hooray/vue-automation'
 };
 const package = require('./package.json');
