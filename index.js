@@ -23,9 +23,10 @@ const gitRepo = {
     jQuery: 'hooray/gulp-automation',
     Vue: 'hooray/vue-automation'
 };
+const package = require('./package.json');
 
 program
-    .version('1.0.0', '-v, --version')
+    .version(package.version, '-v, --version')
     .command('init [name]')
     .action(name => {
         let gitRepoList = [];
@@ -77,10 +78,7 @@ program
                 download(gitRepo[answer.type], answer.name, err => {
                     if (err) {
                         spinner.fail();
-                        console.log(
-                            symbols.error,
-                            chalk.red('项目创建失败')
-                        );
+                        console.log(symbols.error, chalk.red('项目创建失败'));
                     } else {
                         spinner.succeed();
                         console.log(
@@ -100,24 +98,30 @@ program
                         if (answer.ifInstall) {
                             let spinner = ora('安装中...');
                             spinner.start();
-                            shell.exec(
-                                `cd ${answer.name} && ${answer.installWay == 'yarn' ? 'yarn' : 'npm i'}`,
-                                function(err, stdout, stderr) {
-                                    if (err) {
-                                        spinner.fail();
-                                        console.log(
-                                            symbols.error,
-                                            chalk.red(err)
-                                        );
-                                    } else {
-                                        spinner.succeed();
-                                        console.log(
-                                            symbols.success,
-                                            chalk.green('依赖包安装成功')
-                                        );
+                            shell
+                                .cd(answer.name)
+                                .exec(
+                                    `${
+                                        answer.installWay == 'yarn'
+                                            ? 'yarn'
+                                            : 'npm i'
+                                    }`,
+                                    function(err, stdout, stderr) {
+                                        if (err) {
+                                            spinner.fail();
+                                            console.log(
+                                                symbols.error,
+                                                chalk.red(err)
+                                            );
+                                        } else {
+                                            spinner.succeed();
+                                            console.log(
+                                                symbols.success,
+                                                chalk.green('依赖包安装成功')
+                                            );
+                                        }
                                     }
-                                }
-                            );
+                                );
                         }
                     }
                 });
