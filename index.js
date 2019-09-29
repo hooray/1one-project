@@ -21,7 +21,7 @@ const shell = require('shelljs');
 // 模版git地址
 const gitRepo = {
     jQuery: 'hooray/gulp-automation-template',
-    Vue: 'hooray/vue-automation'
+    Vue: 'hooray/vue-automation-template'
 };
 const package = require('./package.json');
 
