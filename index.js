@@ -1,0 +1,126 @@
+#!/usr/bin/env node
+
+// 处理用户输入的命令
+const program = require('commander');
+// 下载模板
+const download = require('download-git-repo');
+// 问题交互
+const inquirer = require('inquirer');
+// node 文件模块
+const fs = require('fs');
+// 填充信息至文件
+const handlebars = require('handlebars');
+// 动画效果
+const ora = require('ora');
+// 字体加颜色
+const chalk = require('chalk');
+// 显示提示图标
+const symbols = require('log-symbols');
+// 命令行操作
+const shell = require('shelljs');
+// 模版git地址
+const gitRepo = {
+    jQuery: 'hooray/gulp-automation',
+    Vue: 'hooray/vue-automation'
+};
+
+program
+    .version('1.0.0', '-v, --version')
+    .command('init [name]')
+    .action(name => {
+        let gitRepoList = [];
+        for (let i in gitRepo) {
+            gitRepoList.push(i);
+        }
+        inquirer
+            .prompt([
+                {
+                    type: 'input',
+                    message: '请输入项目名',
+                    name: 'name',
+                    default: name,
+                    validate: function(val) {
+                        if (val == '') {
+                            return '项目必须要有名称噢';
+                        }
+                        if (fs.existsSync(val)) {
+                            return '项目名已存在';
+                        }
+                        return true;
+                    }
+                },
+                {
+                    type: 'list',
+                    message: '请选择项目类型',
+                    name: 'type',
+                    choices: gitRepoList
+                },
+                {
+                    type: 'confirm',
+                    message: '下载完成是否自动安装依赖包',
+                    name: 'ifInstall',
+                    default: true
+                },
+                {
+                    type: 'list',
+                    message: '请选择安装方式',
+                    name: 'installWay',
+                    choices: ['yarn', 'npm'],
+                    when: answer => {
+                        return answer.ifInstall;
+                    }
+                }
+            ])
+            .then(answer => {
+                let spinner = ora('下载中...');
+                spinner.start();
+                download(gitRepo[answer.type], answer.name, err => {
+                    if (err) {
+                        spinner.fail();
+                        console.log(
+                            symbols.error,
+                            chalk.red('项目创建失败')
+                        );
+                    } else {
+                        spinner.succeed();
+                        console.log(
+                            symbols.success,
+                            chalk.green('项目创建成功')
+                        );
+                        const packageFile = `${answer.name}/package.json`;
+                        if (fs.existsSync(packageFile)) {
+                            const content = fs
+                                .readFileSync(packageFile)
+                                .toString();
+                            const result = handlebars.compile(content)({
+                                name: answer.name
+                            });
+                            fs.writeFileSync(packageFile, result);
+                        }
+                        if (answer.ifInstall) {
+                            let spinner = ora('安装中...');
+                            spinner.start();
+                            shell.exec(
+                                `cd ${answer.name} && ${answer.installWay == 'yarn' ? 'yarn' : 'npm i'}`,
+                                function(err, stdout, stderr) {
+                                    if (err) {
+                                        spinner.fail();
+                                        console.log(
+                                            symbols.error,
+                                            chalk.red(err)
+                                        );
+                                    } else {
+                                        spinner.succeed();
+                                        console.log(
+                                            symbols.success,
+                                            chalk.green('依赖包安装成功')
+                                        );
+                                    }
+                                }
+                            );
+                        }
+                    }
+                });
+            });
+    });
+program.parse(process.argv);
