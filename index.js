@@ -67,15 +67,15 @@ program
                     message: '请选择安装方式',
                     name: 'installWay',
                     choices: ['yarn', 'npm'],
-                    when: answer => {
-                        return answer.ifInstall;
+                    when: answers => {
+                        return answers.ifInstall;
                     }
                 }
             ])
-            .then(answer => {
+            .then(answers => {
                 let spinner = ora('下载中...');
                 spinner.start();
-                download(gitRepo[answer.type], answer.name, err => {
+                download(gitRepo[answers.type], answers.name, err => {
                     if (err) {
                         spinner.fail();
                         console.log(symbols.error, chalk.red('项目创建失败'));
@@ -85,24 +85,24 @@ program
                             symbols.success,
                             chalk.green('项目创建成功')
                         );
-                        const packageFile = `${answer.name}/package.json`;
+                        const packageFile = `${answers.name}/package.json`;
                         if (fs.existsSync(packageFile)) {
                             const content = fs
                                 .readFileSync(packageFile)
                                 .toString();
                             const result = handlebars.compile(content)({
-                                name: answer.name
+                                name: answers.name
                             });
                             fs.writeFileSync(packageFile, result);
                         }
-                        if (answer.ifInstall) {
+                        if (answers.ifInstall) {
                             let spinner = ora('安装中...');
                             spinner.start();
                             shell
-                                .cd(answer.name)
+                                .cd(answers.name)
                                 .exec(
                                     `${
-                                        answer.installWay == 'yarn'
+                                        answers.installWay == 'yarn'
                                             ? 'yarn'
                                             : 'npm i'
                                     }`,
