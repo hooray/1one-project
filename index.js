@@ -95,6 +95,7 @@ program
                             });
                             fs.writeFileSync(packageFile, result);
                         }
+                        fs.unlink(`${answers.name}/readme.md`, () => {});
                         if (answers.ifInstall) {
                             let spinner = ora('安装中...');
                             spinner.start();
@@ -106,7 +107,7 @@ program
                                             ? 'yarn'
                                             : 'npm i'
                                     }`,
-                                    function(err, stdout, stderr) {
+                                    err => {
                                         if (err) {
                                             spinner.fail();
                                             console.log(
