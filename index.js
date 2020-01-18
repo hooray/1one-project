@@ -56,6 +56,12 @@ program
                     name: 'type',
                     choices: gitRepoList
                 },
+				{
+					type: 'confirm',
+					message: '是否初始化 git 仓库',
+					name: 'ifGitInit',
+					default: true
+				},
                 {
                     type: 'confirm',
                     message: '下载完成是否自动安装依赖包',
@@ -70,7 +76,7 @@ program
                     when: answers => {
                         return answers.ifInstall;
                     }
-                }
+				}
             ])
             .then(answers => {
                 let spinner = ora('下载中...');
@@ -81,10 +87,7 @@ program
                         console.log(symbols.error, chalk.red('项目创建失败'));
                     } else {
                         spinner.succeed();
-                        console.log(
-                            symbols.success,
-                            chalk.green('项目创建成功')
-                        );
+                        console.log(symbols.success, chalk.green('项目创建成功'));
                         const packageFile = `${answers.name}/package.json`;
                         if (fs.existsSync(packageFile)) {
                             const content = fs
@@ -95,31 +98,32 @@ program
                             });
                             fs.writeFileSync(packageFile, result);
                         }
-                        fs.unlink(`${answers.name}/readme.md`, () => {});
+						fs.unlink(`${answers.name}/readme.md`, () => {});
+						if (answers.ifGitInit) {
+							shell
+								.cd(answers.name)
+								.exec('git init', err => {
+									if (err) {
+										console.log(symbols.error, chalk.red(err));
+									} else {
+										console.log(symbols.success, chalk.green('git 仓库初始化成功'));
+									}
+								});
+						}
                         if (answers.ifInstall) {
                             let spinner = ora('安装中...');
                             spinner.start();
                             shell
                                 .cd(answers.name)
                                 .exec(
-                                    `${
-                                        answers.installWay == 'yarn'
-                                            ? 'yarn'
-                                            : 'npm i'
-                                    }`,
+                                    `${answers.installWay == 'yarn' ? 'yarn' : 'npm i'}`,
                                     err => {
                                         if (err) {
                                             spinner.fail();
-                                            console.log(
-                                                symbols.error,
-                                                chalk.red(err)
-                                            );
+                                            console.log(symbols.error, chalk.red(err));
                                         } else {
                                             spinner.succeed();
-                                            console.log(
-                                                symbols.success,
-                                                chalk.green('依赖包安装成功')
-                                            );
+                                            console.log(symbols.success, chalk.green('依赖包安装成功'));
                                         }
                                     }
                                 );
