@@ -534,10 +534,10 @@ graceful-fs@^4.1.10:
   resolved "https://registry.npm.taobao.org/graceful-readlink/download/graceful-readlink-1.0.1.tgz#4cafad76bc62f02fa039b2f94e9a3dd3a391a725"
   integrity sha1-TK+tdrxi8C+gObL5Tpo906ORpyU=
 
-handlebars@^4.3.3:
-  version "4.5.3"
-  resolved "https://registry.npm.taobao.org/handlebars/download/handlebars-4.5.3.tgz#5cf75bd8714f7605713511a56be7c349becb0482"
-  integrity sha1-XPdb2HFPdgVxNRGla+fDSb7LBII=
+handlebars@^4.7.2:
+  version "4.7.2"
+  resolved "https://registry.npm.taobao.org/handlebars/download/handlebars-4.7.2.tgz#01127b3840156a0927058779482031afe0e730d7"
+  integrity sha1-ARJ7OEAVagknBYd5SCAxr+DnMNc=
   dependencies:
     neo-async "^2.6.0"
     optimist "^0.6.1"
